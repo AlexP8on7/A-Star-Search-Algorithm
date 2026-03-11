@@ -1,7 +1,7 @@
 # Site settings
 title: C++ Project A* Search Algorithm
-author: AlexPaton
-  name: Alex Paton 
+author:
+  name: Alex Paton
   email: AP@GMAIL
 description: "A blog."
 
