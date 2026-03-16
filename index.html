@@ -1,91 +1,169 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>C++ Project A* Search Algorithm
-</title>
+    <title>C++ A* Pathfinding Algorithm</title>
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            margin: 0;
             font-family: Arial, sans-serif;
-        }
-        .container {
+            background-color: #f5f5f5;
+            color: #333;
             display: flex;
         }
+
         .navbar {
-            width: 200px;
-            background-color: #333;
+            width: 220px;
+            min-height: 100vh;
+            background-color: #1e1e1e;
             color: white;
-            padding: 15px;
-            height: 120vh;
-              }
+            padding: 20px 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .navbar h3 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+            margin-bottom: 15px;
+        }
+
         .navbar a {
             display: block;
-            color: white;
+            color: #ddd;
             text-decoration: none;
-            padding: 10px 0;
+            padding: 8px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 4px;
         }
+
         .navbar a:hover {
-            background-color: #575757;
+            background-color: #333;
+            color: white;
         }
+
         .content {
             margin-left: 220px;
-            padding: 20px;
+            padding: 40px 60px;
+            max-width: 900px;
+            line-height: 1.7;
         }
-        h1, h2 {
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
             border-bottom: 2px solid #ddd;
-            padding-bottom: 5px;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin-top: 40px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        code {
+            background-color: #eee;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        pre {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13px;
+            margin-bottom: 20px;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        
-        <div class="navbar">
-            <h3>Navigation</h3>
-            <a href="#introduction">Introduction</a>
-            <a href="#project-setup">Project Set-Up</a>
-            <a href="#template-code">Template Code</a>
-            <a href="#simulation">Simulation</a>
-            <a href="#synthesis">Synthesis</a>
-            <a href="#vga-design">My VGA Design Edit</a>
-            <a href="#code-adaptation">Code Adaptation</a>
-            <a href="#final-demonstration">Final Demonstration</a>
-        </div>
 
-        <div class="content">
-            <h1 id="introduction">Introduction</h1>
-            <p>Welcome to my C++ A Star Algorithm blog, where I will be presenting my learnings from the C++ project assignment. I will be discussing the use of modern C++ features including smart pointers, STL containers, and lambda functions to implement an efficient pathfinding algorithm. Throughout this report, I will explain the A* algorithm's core concepts, demonstrate how object-oriented design principles were applied to create modular and reusable code, and showcase the testing methodology used to validate the implementation across various scenarios including simple paths and obstacle navigation</p>
+    <div class="navbar">
+        <h3>Navigation</h3>
+        <a href="#introduction">Introduction</a>
+        <a href="#what-is-astar">What is A*?</a>
+        <a href="#implementation">Implementation</a>
+        <a href="#design-choices">Design Choices</a>
+        <a href="#testing">Testing & Validation</a>
+        <a href="#project-management">Project Management</a>
+        <a href="#reflection">Reflection</a>
+    </div>
 
-            <h2 id="project-setup">What is the A Star Algorithm?</h2>
-            <p>Before diving into the implementation, it is important to understand what the A Star algorithm actually does. A Star is a pathfinding algorithm that finds the shortest path between two points on a grid. It does this by evaluating each position using the formula f(n) = g(n) + h(n), where g(n) is the cost from the start node to the current node, and h(n) is the heuristic estimate of the cost from the current node to the goal. By combining these two values, A Star always explores the most promising path first, making it both efficient and accurate.</p>
+    <div class="content">
 
-            <h2 id="template-code">Implementation</h2>
-            <p>The implementation was structured across multiple files to ensure modularity and reusability. The core algorithm lives in aStarPathfinding.cpp, with declarations in aStarPathfinding.h, keeping the interface clean and separate from the logic. main.cpp remains minimal, simply calling RunAllTests() from PathfindingTests.cpp, which validates the algorithm across three scenarios: a simple path with no obstacles, a path that must navigate around obstacles, and a case where no path exists.
+        <h1 id="introduction">Introduction</h1>
+        <p>Welcome to my C++ A* Algorithm blog, where I will be presenting my learnings from the C++ project assignment. I will be discussing the use of modern C++ features including smart pointers, STL containers, and lambda functions to implement an efficient pathfinding algorithm. Throughout this report, I will explain the A* algorithm's core concepts, demonstrate how object-oriented design principles were applied to create modular and reusable code, and showcase the testing methodology used to validate the implementation across various scenarios including simple paths and obstacle navigation.</p>
 
-               <p> Modern C++ features were applied throughout. Smart pointers (std::shared_ptr) were used in place of raw pointers to eliminate memory leaks. The STL containers std::vector, std::priority_queue, and std::unordered_set were used for the grid, open set, and closed set respectively. Lambda functions were used to hash grid positions for O(1) closed set lookup, and range-based loops with auto were used throughout for readability.</p>
+        <h2 id="what-is-astar">What is the A* Algorithm?</h2>
+        <p>Before diving into the implementation, it is important to understand what the A* algorithm actually does. A* is a pathfinding algorithm that finds the shortest path between two points on a grid. It does this by evaluating each position using the formula <code>f(n) = g(n) + h(n)</code>, where <code>g(n)</code> is the cost from the start node to the current node, and <code>h(n)</code> is the heuristic estimate of the cost from the current node to the goal. By combining these two values, A* always explores the most promising path first, making it both efficient and accurate.</p>
 
-            <h2 id="simulation">Design Choices</h2>
-            <p>The Manhattan heuristic was chosen as it is well suited for grid-based movement where only four directions are permitted. It calculates distance as the sum of horizontal and vertical steps, which directly reflects how movement works in this implementation. The grid itself uses integer values, where 0 represents an empty cell and 1 represents an obstacle. Cells with values greater than 1 are treated as weighted terrain, meaning the algorithm naturally supports weighted graphs without any additional changes.</p>
+        <h2 id="implementation">Implementation</h2>
+        <p>The implementation was structured across multiple files to ensure modularity and reusability. The core algorithm lives in <code>aStarPathfinding.cpp</code>, with declarations in <code>aStarPathfinding.h</code>, keeping the interface clean and separate from the logic. <code>main.cpp</code> remains minimal, simply calling <code>RunAllTests()</code> from <code>PathfindingTests.cpp</code>, which validates the algorithm across three scenarios: a simple path with no obstacles, a path that must navigate around obstacles, and a case where no path exists.</p>
+        <p>Modern C++ features were applied throughout. Smart pointers (<code>std::shared_ptr</code>) were used in place of raw pointers to eliminate memory leaks. The STL containers <code>std::vector</code>, <code>std::priority_queue</code>, and <code>std::unordered_set</code> were used for the grid, open set, and closed set respectively. Lambda functions were used to hash grid positions for O(1) closed set lookup, and range-based loops with <code>auto</code> were used throughout for readability.</p>
 
-           <p>The closed set uses an std::unordered_set of hashed positions rather than a vector, giving O(1) lookup instead of O(n). This was a deliberate design decision to improve performance on larger grids.</p>
-               <div style="display: flex; gap: 20px; justify-content: center;">
-                <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/Sim2.png" alt="Simulation Screenshot 1" style="width: 60%;">
-                <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/Sim4.png" alt="Simulation Screenshot 2" style="width: 40%;">
-            </div>
-            <h2 id="synthesis">Testing & Validation</h2>
-            <p>Three test cases were written to cover both general and edge scenarios. Test 1 validates that the algorithm finds a path on an open grid. Test 2 confirms the algorithm correctly navigates around obstacles. Test 3 verifies the algorithm returns an empty path when the goal is completely unreachable, with a wall spanning the entire grid. Output is visualised using S for start, G for goal, * for the path, # for obstacles, and . for empty cells.
+        <pre>
+// Lambda to convert (x,y) to a unique hash for O(1) lookup
+auto hashPos = [](int x, int y) { return x * 10000 + y; };
 
-                        </div>
+// Manhattan distance heuristic
+float ManhattanHeuristic(std::shared_ptr&lt;Node&gt; a, std::shared_ptr&lt;Node&gt; b) {
+    return static_cast&lt;float&gt;(std::abs(a-&gt;x - b-&gt;x) + std::abs(a-&gt;y - b-&gt;y));
+}</pre>
 
-            <h2 id="vga-design">Project Management</h2>
-         
-            <p>Development was carried out iteratively across lab sessions, with each session building on the previous. Claude Sonnet was used to help explain certain aspects of the A* algorithm, particularly understanding how f(n) = g(n) + h(n) drives node selection. Visual Studio 2022 was used throughout for building and debugging. Progress was demonstrated during lab checkpoints, with each session introducing improvements such as migrating from raw pointers to smart pointers, fixing the closedSet bug where nodes were being revisited, and separating test logic from the main entry point. </p>
+        <h2 id="design-choices">Design Choices</h2>
+        <p>The Manhattan heuristic was chosen as it is well suited for grid-based movement where only four directions are permitted. It calculates distance as the sum of horizontal and vertical steps, which directly reflects how movement works in this implementation. The grid itself uses integer values, where <code>0</code> represents an empty cell and <code>1</code> represents an obstacle. Cells with values greater than 1 are treated as weighted terrain, meaning the algorithm naturally supports weighted graphs without any additional changes.</p>
+        <p>The closed set uses an <code>std::unordered_set</code> of hashed positions rather than a vector, giving O(1) lookup instead of O(n). This was a deliberate design decision to improve performance on larger grids.</p>
 
-            <h2 id="code-adaptation">Reflection</h2>
-            <p>The biggest challenge encountered was wrapping my head around how the A* algorithm actually works, specifically how f(n) = g(n) + h(n) guides the search. Once I understood that g(n) represents the known cost and h(n) represents the estimated remaining cost, the logic of the priority queue became much clearer — the algorithm always processes the node with the lowest total cost first.
+        <h2 id="testing">Testing & Validation</h2>
+        <p>Three test cases were written to cover both general and edge scenarios. Test 1 validates that the algorithm finds a path on an open grid. Test 2 confirms the algorithm correctly navigates around obstacles. Test 3 verifies the algorithm returns an empty path when the goal is completely unreachable, with a wall spanning the entire grid. Output is visualised using <code>S</code> for start, <code>G</code> for goal, <code>*</code> for the path, <code>#</code> for obstacles, and <code>.</code> for empty cells.</p>
 
-             <p> One thing I would do differently given more time is unify the visual output across all test cases. Currently TestNoPath calls PrintGrid while TestSimplePath and TestWithObstacles call PrintGridWithPath, resulting in an inconsistent output style. The fix would be straightforward — having PrintGridWithPath fall back to PrintGrid when the path is empty — but time did not allow for this.
+        <pre>
+=== Test 1: Simple Path (no obstacles) ===
+Path length: 9 steps
+S . . . .
+* * . . .
+. * * * *
+. . . . *
+. . . . G
 
-            <p>The current implementation is limited to four directional movement, meaning diagonal paths are not possible. This is a known limitation of the Manhattan heuristic, which assumes only horizontal and vertical movement. Given more time, diagonal movement would be the next feature to implement, which would require switching to the Chebyshev or Octile distance heuristic and expanding the direction vectors from 4 to 8.</p>
-       
+=== Test 2: Path with Obstacles ===
+Path length: 13 steps
+S . . . . . . .
+* . . . . . . .
+* # # # . . . .
+* . . . . . . .
+* * * * * . . .
+. . . . * # . .
+. . . . * # . .
+. . . . * G . .</pre>
+
+        <h2 id="project-management">Project Management</h2>
+        <p>Development was carried out iteratively across lab sessions, with each session building on the previous. Claude Sonnet was used to help explain certain aspects of the A* algorithm, particularly understanding how <code>f(n) = g(n) + h(n)</code> drives node selection. Visual Studio 2022 was used throughout for building and debugging. Progress was demonstrated during lab checkpoints, with each session introducing improvements such as migrating from raw pointers to smart pointers, fixing the <code>closedSet</code> bug where nodes were being revisited, and separating test logic from the main entry point.</p>
+
+        <h2 id="reflection">Reflection</h2>
+        <p>The biggest challenge encountered was wrapping my head around how the A* algorithm actually works, specifically how <code>f(n) = g(n) + h(n)</code> guides the search. Once I understood that <code>g(n)</code> represents the known cost and <code>h(n)</code> represents the estimated remaining cost, the logic of the priority queue became much clearer — the algorithm always processes the node with the lowest total cost first.</p>
+        <p>One thing I would do differently given more time is unify the visual output across all test cases. Currently <code>TestNoPath</code> calls <code>PrintGrid</code> while <code>TestSimplePath</code> and <code>TestWithObstacles</code> call <code>PrintGridWithPath</code>, resulting in an inconsistent output style. The fix would be straightforward — having <code>PrintGridWithPath</code> fall back to <code>PrintGrid</code> when the path is empty — but time did not allow for this.</p>
+        <p>The current implementation is limited to four directional movement, meaning diagonal paths are not possible. This is a known limitation of the Manhattan heuristic, which assumes only horizontal and vertical movement. Given more time, diagonal movement would be the next feature to implement, which would require switching to the Chebyshev or Octile distance heuristic and expanding the direction vectors from 4 to 8.</p>
+
+    </div>
+
+</body>
+</html>
