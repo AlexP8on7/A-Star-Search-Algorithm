@@ -157,6 +157,22 @@ S . . . . . . .
 
         <h2 id="project-management">Project Management</h2>
         <p>Development was carried out iteratively across lab sessions, with each session building on the previous. Claude Sonnet was used to help explain certain aspects of the A* algorithm, particularly understanding how <code>f(n) = g(n) + h(n)</code> drives node selection. Visual Studio 2022 was used throughout for building and debugging. Progress was demonstrated during lab checkpoints, with each session introducing improvements such as migrating from raw pointers to smart pointers, fixing the <code>closedSet</code> bug where nodes were being revisited, and separating test logic from the main entry point.</p>
+        <p>An early version of <code>main.cpp</code> contained all the pathfinding logic directly, including grid setup, obstacle placement, and output. This was replaced as it violated the principle of modular design — <code>main.cpp</code> should act as an entry point, not contain implementation details. The code below shows this earlier approach before it was refactored:</p>
+        <pre>
+#include &lt;iostream&gt;
+#include &lt;stdexcept&gt;
+#include "aStarPathfinding.h"
+#include "TestProgrammer.h"
+
+int main() {
+    auto grid = CreateGrid(10, 10);
+    // Adds obstacles
+    grid[2][2] = grid[2][3] = grid[2][4] = 1;
+    grid[5][5] = grid[6][5] = grid[7][5] = 1;
+    grid[2][5] = grid[3][5] = grid[4][5] = 1;
+    std::cout &lt;&lt; "Grid with obstacles:\n";
+    PrintGrid(grid);
+}</pre>
 
         <h2 id="reflection">Reflection</h2>
         <p>The biggest challenge encountered was wrapping my head around how the A* algorithm actually works, specifically how <code>f(n) = g(n) + h(n)</code> guides the search. Once I understood that <code>g(n)</code> represents the known cost and <code>h(n)</code> represents the estimated remaining cost, the logic of the priority queue became much clearer — the algorithm always processes the node with the lowest total cost first.</p>
