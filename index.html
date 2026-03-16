@@ -55,58 +55,37 @@
 
         <div class="content">
             <h1 id="introduction">Introduction</h1>
-            <p>Welcome to my C++ A* Algorithm blog, where I will be presenting my learnings from the C++ project assignment. I will be discussing the use of modern C++ features including smart pointers, STL containers, and lambda functions to implement an efficient pathfinding algorithm. Throughout this report, I will explain the A* algorithm's core concepts, demonstrate how object-oriented design principles were applied to create modular and reusable code, and showcase the testing methodology used to validate the implementation across various scenarios including simple paths and obstacle navigation</p>
+            <p>Welcome to my C++ A Star Algorithm blog, where I will be presenting my learnings from the C++ project assignment. I will be discussing the use of modern C++ features including smart pointers, STL containers, and lambda functions to implement an efficient pathfinding algorithm. Throughout this report, I will explain the A* algorithm's core concepts, demonstrate how object-oriented design principles were applied to create modular and reusable code, and showcase the testing methodology used to validate the implementation across various scenarios including simple paths and obstacle navigation</p>
 
-            <h2 id="project-setup">Project Set-Up</h2>
-            <p>My project, titled VGAColourCycle, is implemented using Vivado with the target part xc7a35tcpg236-1 (Artix-7 FPGA). The top module is VGATop, coded in Verilog with a mixed simulator setup. Synthesis and implementation were successfully completed, including the generation of the bitstream file, with some warnings (13 during synthesis and 5 during implementation). The design had no timing violations.</p>
+            <h2 id="project-setup">What is the A Star Algorithm?</h2>
+            <p>Before diving into the implementation, it is important to understand what the A Star algorithm actually does. A Star is a pathfinding algorithm that finds the shortest path between two points on a grid. It does this by evaluating each position using the formula f(n) = g(n) + h(n), where g(n) is the cost from the start node to the current node, and h(n) is the heuristic estimate of the cost from the current node to the goal. By combining these two values, A Star always explores the most promising path first, making it both efficient and accurate.</p>
 
-            <h2 id="template-code">Template Code</h2>
-            <p>The Verilog code templates, ColourCycle and ColourStripes, I used to gain understanding of the programming implemented in this project, used distinct RGB color generation modules designed to interface with a VGA display. I found that the ColourCycle module conatined a state machine that cycles through specific colors (black, red, yellow, green, cyan, blue, magenta, and white) at specific time intervals based on a counter. The output RGB values were updated in registers, which are synchronized with the clock signal. The state machine ensured a smooth transition between colors, creating a colour cycle visual effect on the VGA screen.
+            <h2 id="template-code">Implementation</h2>
+            <p>The implementation was structured across multiple files to ensure modularity and reusability. The core algorithm lives in aStarPathfinding.cpp, with declarations in aStarPathfinding.h, keeping the interface clean and separate from the logic. main.cpp remains minimal, simply calling RunAllTests() from PathfindingTests.cpp, which validates the algorithm across three scenarios: a simple path with no obstacles, a path that must navigate around obstacles, and a case where no path exists.
 
-               <p> The ColourStripes module generated vertical color stripes across the VGA display. Based on the horizontal pixel position, the module assigned different RGB values to create distinct color bands. The stripe colors occupied fixed-width sections of the screen. The ColourStripes module gave me the knowledge of how to utilise rows and columns to design certain shapes and patterns on the VGA screen.
+               <p> Modern C++ features were applied throughout. Smart pointers (std::shared_ptr) were used in place of raw pointers to eliminate memory leaks. The STL containers std::vector, std::priority_queue, and std::unordered_set were used for the grid, open set, and closed set respectively. Lambda functions were used to hash grid positions for O(1) closed set lookup, and range-based loops with auto were used throughout for readability.</p>
 
-               <p> Both template modules relied on the fundamentals of the VGA interface, which used synchronization signals (HSYNC and VSYNC) and pixel clock timing to control the display. Investigating the template modules, I was then able to begin altering and designing my own VGA design. </p>
+            <h2 id="simulation">Design Choices</h2>
+            <p>The Manhattan heuristic was chosen as it is well suited for grid-based movement where only four directions are permitted. It calculates distance as the sum of horizontal and vertical steps, which directly reflects how movement works in this implementation. The grid itself uses integer values, where 0 represents an empty cell and 1 represents an obstacle. Cells with values greater than 1 are treated as weighted terrain, meaning the algorithm naturally supports weighted graphs without any additional changes.</p>
 
-            <h2 id="simulation">Simulation</h2>
-            <p>The simulation process involves running the Verilog design through a testbench to observe and verify its behavior. The screenshots below, show waveform and value traces for signals such as row, col, and RGB outputs (red, green, blue). The simulation highlights how these values evolve over time, as driven by the clk and rst signals.
-
-               <p> The waveforms show the proper functioning of the module's color generation and state transitions. For example, the row and col signals increment appropriately, representing the pixel scanning of the VGA interface. The RGB signals (red, green, blue) remained synchronized with the logic and the VGA pixel clock, confirming the correct rendering of colors on a simulated display. Key parameters like HDISP and VDISP are instrumental in defining the active display region, as shown in the traces.</p>
+           <p>The closed set uses an std::unordered_set of hashed positions rather than a vector, giving O(1) lookup instead of O(n). This was a deliberate design decision to improve performance on larger grids.</p>
                <div style="display: flex; gap: 20px; justify-content: center;">
                 <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/Sim2.png" alt="Simulation Screenshot 1" style="width: 60%;">
                 <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/Sim4.png" alt="Simulation Screenshot 2" style="width: 40%;">
             </div>
-            <h2 id="synthesis">Synthesis</h2>
-            <p>The synthesis and implementation processes are key stages in digital design and FPGA development.This part optimizes the design for area, speed, and power while preserving functionality. Vivado performed logic minimization and mapping that results in a gate-level representation of the design.
+            <h2 id="synthesis">Testing & Validation</h2>
+            <p>Three test cases were written to cover both general and edge scenarios. Test 1 validates that the algorithm finds a path on an open grid. Test 2 confirms the algorithm correctly navigates around obstacles. Test 3 verifies the algorithm returns an empty path when the goal is completely unreachable, with a wall spanning the entire grid. Output is visualised using S for start, G for goal, * for the path, # for obstacles, and . for empty cells.
 
-        
-               <p> Implementation takes the synthesized netlist and maps it to the physical resources of the FPGA. This includes:
-                
-              <p>Placement: Assigning logical components to specific locations on the FPGA.
-                <p> Routing: Establishing signal connections between components, adhering to timing and resource constraints.
-                    <p> Bitstream Generation: Creating a configuration file to program the FPGA.
-                        <p>The uploaded screenshot below, shows the implementation stage of the floorplan view of the FPGA with resource allocation across different regions (e.g., "X0Y0", "X1Y1"). Each colored grid represents a distinct area used for logic or routing.</p>
-                        <div style="display: flex; gap: 20px; justify-content: center;">
-                            <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/Device.png" alt="Simulation Screenshot 1" style="width: 20%;">
                         </div>
 
-            <h2 id="vga-design">My VGA Design Edit</h2>
+            <h2 id="vga-design">Project Management</h2>
          
-            <p>My initial idea was to print the four letters of my first name (A, L, E, X). After editing and learning how to use the state machine, I decided to use this technique along with methods utilized in the ColourStripes module to cycle through the four letters. By integrating the state machine, I was able to control the transitions between the letters systematically, ensuring smooth and predictable operation. Additionally, I incorporated features from the ColourStripes module, such as color-cycling and timing logic, to make the display more visually appealing and dynamic. This combination of techniques allowed me to create an interactive and engaging output that effectively demonstrates my understanding of these concepts. </p>
+            <p>Development was carried out iteratively across lab sessions, with each session building on the previous. Claude Sonnet was used to help explain certain aspects of the A* algorithm, particularly understanding how f(n) = g(n) + h(n) drives node selection. Visual Studio 2022 was used throughout for building and debugging. Progress was demonstrated during lab checkpoints, with each session introducing improvements such as migrating from raw pointers to smart pointers, fixing the closedSet bug where nodes were being revisited, and separating test logic from the main entry point. </p>
 
-            <h2 id="code-adaptation">Code Adaptation</h2>
-            <p>The original code implements a simple colour-cycling state machine, transitioning through eight states, each representing a uniform screen color (e.g., BLACK, RED, GREEN). The state transitions are controlled by a counter, and the RGB outputs are derived from a 12-bit colour register. The design focuses on basic state machine logic and uniform VGA colour rendering.
+            <h2 id="code-adaptation">Reflection</h2>
+            <p>The biggest challenge encountered was wrapping my head around how the A* algorithm actually works, specifically how f(n) = g(n) + h(n) guides the search. Once I understood that g(n) represents the known cost and h(n) represents the estimated remaining cost, the logic of the priority queue became much clearer — the algorithm always processes the node with the lowest total cost first.
 
-             <p> The adapted code extends this concept to render the letters "A", "L", "E", and "X" on a VGA display. It introduces a coordinate-based rendering approach using the row and col inputs to define pixel regions for each letter. Each state corresponds to a letter, and specific colours are assigned to different letters (e.g., red for "A", green for "L"). The counter was reused for timing transitions, but the logic integrates dynamic shapes instead of regular colours. This adaptation transforms the original design from a basic colour display into a  text-rendering system.
-            <p>My adapted code significantly builds on the original ColourCycle module, transforming the basic colour-cycling demonstration into a visually engaging project that combines text rendering, state machine logic, and VGA signal handling.</p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/CodePt1.png" alt="Simulation Screenshot 1" style="width: 40%;">
-                <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/CodePt2.png" alt="Simulation Screenshot 1" style="width: 40%;">
-                <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/CodePt3.png" alt="Simulation Screenshot 1" style="width: 40%;"></div>
+             <p> One thing I would do differently given more time is unify the visual output across all test cases. Currently TestNoPath calls PrintGrid while TestSimplePath and TestWithObstacles call PrintGridWithPath, resulting in an inconsistent output style. The fix would be straightforward — having PrintGridWithPath fall back to PrintGrid when the path is empty — but time did not allow for this.
 
-            <h2 id="final-demonstration">Final Demonstration</h2> 
-            <p>The final demo successfully displayed the state machine cycling through the letters "A," "L," "E," and "X" on the VGA screen, showcasing precise synchronization and timing. I feel like this highlighted my custom ability to control patterns and characters dynamically.</p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/A.png" alt="Simulation Screenshot 1" style="width: 30%;">
-                <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/L.png" alt="Simulation Screenshot 1" style="width: 40%;">
-                <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/E.png" alt="Simulation Screenshot 1" style="width: 40%;">
-                <img src="https://raw.githubusercontent.com/AlexP8on7/FPGA_VGA_SOC_Project/main/images/X.png" alt="Simulation Screenshot 1" style="width: 40%;"></div>
+            <p>The current implementation is limited to four directional movement, meaning diagonal paths are not possible. This is a known limitation of the Manhattan heuristic, which assumes only horizontal and vertical movement. Given more time, diagonal movement would be the next feature to implement, which would require switching to the Chebyshev or Octile distance heuristic and expanding the direction vectors from 4 to 8.</p>
+       
