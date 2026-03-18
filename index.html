@@ -110,7 +110,7 @@
     <div class="content">
 
         <h1 id="introduction">Introduction</h1>
-        <p>Welcome to my C++ A* Algorithm blog, where I will be presenting my learnings from the C++ project assignment. I will be discussing the use of modern C++ features including smart pointers, STL containers, and lambda functions to implement an efficient pathfinding algorithm. Throughout this report, I will explain the A* algorithm's core concepts, demonstrate how object-oriented design principles were applied to create modular and reusable code, and showcase the testing methodology used to validate the implementation across various scenarios including simple paths and obstacle navigation.</p>
+        <p>Welcome to my C++ A* Algorithm blog, where I will be presenting my learnings from the C++ project assignment. I will be discussing the use of modern C++ features including smart pointers, Standard Template Library (STL) containers, and lambda functions to implement an efficient pathfinding algorithm. Throughout this report, I will explain the A* algorithm's core concepts, demonstrate how object-oriented design principles were applied to create modular and reusable code, and showcase the testing methodology used to validate the implementation across various scenarios including simple paths and obstacle navigation.</p>
 
         <h2 id="what-is-astar">What is the A* Algorithm?</h2>
         <p>Before diving into the implementation, it is important to understand what the A* algorithm actually does. A* is a pathfinding algorithm that finds the shortest path between two points on a grid. It does this by evaluating each position using the formula <code>f(n) = g(n) + h(n)</code>, where <code>g(n)</code> is the cost from the start node to the current node, and <code>h(n)</code> is the heuristic estimate of the cost from the current node to the goal. By combining these two values, A* always explores the most promising path first, making it both efficient and accurate.</p>
@@ -159,7 +159,7 @@ S . . . . . . .
         <h2 id="project-management">Project Management</h2>
         <p>Development was carried out iteratively across lab sessions, with each session building on the previous. Claude Sonnet was used to help explain certain aspects of the A* algorithm, particularly understanding how <code>f(n) = g(n) + h(n)</code> drives node selection. Visual Studio 2022 was used throughout for building and debugging. Progress was demonstrated during lab checkpoints, with each session introducing improvements such as migrating from raw pointers to smart pointers, fixing the <code>closedSet</code> bug where nodes were being revisited, and separating test logic from the main entry point.</p>
         <img src="https://raw.githubusercontent.com/AlexP8on7/A-Star-Search-Algorithm/master/A*%20Algorithm%20Report/Screenshot%202026-03-16%20215031.png" alt="UML Class Diagram - Before and After Refactor" style="width:100%; margin: 20px 0; border-radius: 8px;">
-        <p>The UML diagram above illustrates the architectural shift from a monolithic design to a modular one. The old structure had all logic crammed into <code>main.cpp</code>, while the refactored version separates responsibilities across dedicated files.</p>
+        <p>The UML diagram above shows how the architecture shifted from a monolithic design to a modular one. The old structure had all logic crammed into <code>main.cpp</code>, while the refactored version separates responsibilities across dedicated files.</p>
         <p>An early version of <code>main.cpp</code> contained all the pathfinding logic directly, including grid setup, obstacle placement, and output. This was replaced as it violated the principle of modular design — <code>main.cpp</code> should act as an entry point, not contain implementation details. The code below shows this earlier approach before it was refactored:</p>
         <pre>
 #include &lt;iostream&gt;
@@ -182,6 +182,8 @@ int main() {
         <p>One thing I would do differently given more time is unify the visual output across all test cases. Currently <code>TestNoPath</code> calls <code>PrintGrid</code> while <code>TestSimplePath</code> and <code>TestWithObstacles</code> call <code>PrintGridWithPath</code>, resulting in an inconsistent output style. The fix would be straightforward — having <code>PrintGridWithPath</code> fall back to <code>PrintGrid</code> when the path is empty — but time did not allow for this.</p>
         <p>The current implementation is limited to four directional movement, meaning diagonal paths are not possible. This is a known limitation of the Manhattan heuristic, which assumes only horizontal and vertical movement. Given more time, diagonal movement would be the next feature to implement, which would require switching to the Chebyshev or Octile distance heuristic and expanding the direction vectors from 4 to 8.</p>
 
+
+        <h2 id="reflection">Refernces</h2>
     </div>
 
 </body>
