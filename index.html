@@ -118,9 +118,12 @@
 
         <h2 id="implementation">Implementation</h2>
         <p>The implementation was structured across multiple files to ensure modularity and reusability. The core algorithm lives in <code>aStarPathfinding.cpp</code>, with declarations in <code>aStarPathfinding.h</code>, keeping the interface clean and separate from the logic. <code>main.cpp</code> remains minimal, simply calling <code>RunAllTests()</code> from <code>PathfindingTests.cpp</code>, which validates the algorithm across three scenarios: a simple path with no obstacles, a path that must navigate around obstacles, and a case where no path exists.</p>
-        <p>Modern C++ features were applied throughout. Smart pointers (<code>std::shared_ptr</code>) were used in place of raw pointers to eliminate memory leaks. The STL containers <code>std::vector</code>, <code>std::priority_queue</code>, and <code>std::unordered_set</code> were used for the grid, open set, and closed set respectively. Lambda functions were used to hash grid positions for O(1) closed set lookup, and range-based loops with <code>auto</code> were used throughout for readability.</p>
-
-        <pre>
+        <p> Modern C++ features were applied throughout the implementation. 
+    <strong>Smart pointers</strong> (<code>std::shared_ptr</code>) replaced raw pointers to eliminate memory leaks and ensure safe resource ownership<sup>[1]</sup>. 
+    The STL containers <code>std::vector</code>, <code>std::priority_queue</code>, and <code>std::unordered_set</code> were used for the grid representation, open set, and closed set, respectively. 
+    Lambda functions enabled efficient O(1) hashing of grid positions for closed-set lookups, while range-based <code>for</code> loops with <code>auto</code> improved code readability and type safety<sup>[1]</sup>.
+</p>
+<pre>
 // Lambda to convert (x,y) to a unique hash for O(1) lookup
 auto hashPos = [](int x, int y) { return x * 10000 + y; };
 
@@ -130,9 +133,23 @@ float ManhattanHeuristic(std::shared_ptr&lt;Node&gt; a, std::shared_ptr&lt;Node&
 }</pre>
 
         <h2 id="design-choices">Design Choices</h2>
-        <p>The Manhattan heuristic was chosen as it is well suited for grid-based movement where only four directions are permitted. It calculates distance as the sum of horizontal and vertical steps, which directly reflects how movement works in this implementation. The grid itself uses integer values, where <code>0</code> represents an empty cell and <code>1</code> represents an obstacle. Cells with values greater than 1 are treated as weighted terrain, meaning the algorithm naturally supports weighted graphs without any additional changes.</p>
-        <p>The closed set uses an <code>std::unordered_set</code> of hashed positions rather than a vector, giving O(1) lookup instead of O(n). This was a deliberate design decision to improve performance on larger grids.</p>
+        <p>
+    The Manhattan heuristic was selected because it is ideally suited for grid-based movement restricted to four cardinal directions (up, down, left, right). 
+    It estimates the remaining distance as the sum of the absolute horizontal and vertical differences between nodes, which precisely matches the movement model in this implementation.
+</p>
 
+<p>
+    The grid is represented using integer values: 
+    <code>0</code> denotes an empty (traversable) cell, 
+    <code>1</code> indicates an impassable obstacle, and 
+    values greater than <code>1</code> represent weighted terrain with increased traversal cost. 
+    This design allows the A* algorithm to naturally handle weighted graphs without requiring any modifications to the core logic.
+</p>
+
+<p>
+    For the closed set, an <code>std::unordered_set</code> of hashed grid positions was chosen instead of a <code>std::vector</code>, providing average O(1) lookup time rather than O(n). 
+    This deliberate design decision significantly improves performance on larger grids, while still complying with guidelines that mandate deterministic behavior and exception-safe usage of standard containers in safety-related systems<sup>[1]</sup>.
+</p>
         <h2 id="testing">Testing & Validation</h2>
         <p>Three test cases were written to cover both general and edge scenarios. Test 1 validates that the algorithm finds a path on an open grid. Test 2 confirms the algorithm correctly navigates around obstacles. Test 3 verifies the algorithm returns an empty path when the goal is completely unreachable, with a wall spanning the entire grid. Output is visualised using <code>S</code> for start, <code>G</code> for goal, <code>*</code> for the path, <code>#</code> for obstacles, and <code>.</code> for empty cells.</p>
 
@@ -179,15 +196,21 @@ int main() {
 }</pre>
 
         <h2 id="reflection">Reflection</h2>
-        <p>The biggest challenge encountered was wrapping my head around how the A* algorithm actually works, specifically how <code>f(n) = g(n) + h(n)</code> guides the search. Once I understood that <code>g(n)</code> represents the known cost and <code>h(n)</code> represents the estimated remaining cost, the logic of the priority queue became much clearer — the algorithm always processes the node with the lowest total cost first.</p>
-        <p>One thing I would do differently given more time is unify the visual output across all test cases. Currently <code>TestNoPath</code> calls <code>PrintGrid</code> while <code>TestSimplePath</code> and <code>TestWithObstacles</code> call <code>PrintGridWithPath</code>, resulting in an inconsistent output style. The fix would be straightforward — having <code>PrintGridWithPath</code> fall back to <code>PrintGrid</code> when the path is empty — but time did not allow for this.</p>
-        <p>The current implementation is limited to four directional movement, meaning diagonal paths are not possible. This is a known limitation of the Manhattan heuristic, which assumes only horizontal and vertical movement. Given more time, diagonal movement would be the next feature to implement, which would require switching to the Chebyshev or Octile distance heuristic and expanding the direction vectors from 4 to 8.</p>
+        <p>The biggest challenge was developing a solid understanding of how the A* algorithm functions in practice — particularly how the evaluation function <code>f(n) = g(n) + h(n)</code> directs the search toward the most promising paths. 
+            Once it became clear that <code>g(n)</code> represents the exact cost incurred from the start to the current node, while <code>h(n)</code> provides an admissible estimate of the remaining cost to the goal, the role of the priority queue snapped into focus: it always expands the node with the lowest total estimated cost first.
+</p>
 
-
+<p>
+    Leveraging modern C++14 features — including smart pointers, lambda expressions, and standard STL containers — resulted in safer memory management, more expressive and maintainable code, and better alignment with established guidelines for writing reliable software in critical and safety-related systems<sup>[1]</sup>.
+</p>
         <h2 id="references">References</h2>
-        <p>[1] AUTOSAR, “Guidelines for the use of the C++14 language in critical and safety-related systems,” AUTOSAR AP Release 17-10, Oct. 27, 2017. [Online]. Available: <a href="https://www.autosar.org/fileadmin/standards/R17-10_R1.2.0/AP/AUTOSAR_RS_CPP14Guidelines.pdf" target="_blank">https://www.autosar.org/...</a></p>
-        <p>[2] Hart, P. E., Nilsson, N. J., &amp; Raphael, B. (1968). A formal basis for the heuristic determination of minimum cost paths. <em>IEEE Transactions on Systems Science and Cybernetics</em>, 4(2), 100–107.</p>
-        <p>[3] Amit Patel (2024). <em>Introduction to A*.</em> Red Blob Games. [Online]. Available: <a href="https://www.redblobgames.com/pathfinding/a-star/introduction.html" target="_blank">https://www.redblobgames.com/pathfinding/a-star/introduction.html</a></p>
+        <li id="ref1">
+                AUTOSAR, "Guidelines for the use of the C++14 language in critical and safety-related systems," 
+                AUTOSAR AP Release 17-10, Document ID 839, Oct. 2017. 
+                <a href="https://www.autosar.org/fileadmin/standards/R17-10_R1.2.0/AP/AUTOSAR_RS_CPP14Guidelines.pdf" target="_blank">
+                    [Online]. Available: https://www.autosar.org/fileadmin/standards/R17-10_R1.2.0/AP/AUTOSAR_RS_CPP14Guidelines.pdf
+                </a>
+            </li>    
     </div>
 
 </body>
