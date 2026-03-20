@@ -134,8 +134,8 @@ float ManhattanHeuristic(std::shared_ptr&lt;Node&gt; a, std::shared_ptr&lt;Node&
 
         <h2 id="design-choices">Design Choices</h2>
         <p>
-    The Manhattan heuristic was selected because it is ideally suited for grid-based movement restricted to four cardinal directions (up, down, left, right). 
-    It estimates the remaining distance as the sum of the absolute horizontal and vertical differences between nodes, which precisely matches the movement model in this implementation.
+    The Manhattan heuristic was selected because it is ideally suited for grid-based movement restricted to four directions (up, down, left, right). 
+    It estimates the remaining distance as the sum of the absolute horizontal and vertical differences between nodes, which matches the movement model in the implementation.
 </p>
 
 <p>
@@ -148,10 +148,11 @@ float ManhattanHeuristic(std::shared_ptr&lt;Node&gt; a, std::shared_ptr&lt;Node&
 
 <p>
     For the closed set, an <code>std::unordered_set</code> of hashed grid positions was chosen instead of a <code>std::vector</code>, providing average O(1) lookup time rather than O(n). 
-    This deliberate design decision significantly improves performance on larger grids, while still complying with guidelines that mandate deterministic behavior and exception-safe usage of standard containers in safety-related systems<sup>[1]</sup>.
+    This specific design choice significantly improves performance on larger grids, while still complying with guidelines that mandate deterministic behavior and exception-safe usage of standard containers in safety-related systems<sup>[1]</sup>.
 </p>
         <h2 id="testing">Testing & Validation</h2>
-        <p>Three test cases were written to cover both general and edge scenarios. Test 1 validates that the algorithm finds a path on an open grid. Test 2 confirms the algorithm correctly navigates around obstacles. Test 3 verifies the algorithm returns an empty path when the goal is completely unreachable, with a wall spanning the entire grid. Output is visualised using <code>S</code> for start, <code>G</code> for goal, <code>*</code> for the path, <code>#</code> for obstacles, and <code>.</code> for empty cells.</p>
+        <p>TThree test cases were written to cover both general and edge scenarios. Test 1 validates that the algorithm finds a path on an open grid. Test 2 confirms the algorithm correctly navigates around obstacles. Test 3 verifies the algorithm returns an empty path when the goal is completely unreachable, with a wall spanning the entire grid.The Output can be visualised using <code>S</code> for start, <code>G</code> for goal, <code>*</code> for the path, <code>#</code> for obstacles, and <code>.</code> for empty cells. 
+    This focus on testing both normal and failure scenarios reflects industry practices, where insufficient validation has previously contributed to large-scale system failures, such as the recent CrowdStrike IT Outages<sup>[2]</sup>.</p>
 
         <pre>
 === Test 1: Simple Path (no obstacles) ===
@@ -171,14 +172,22 @@ S . . . . . . .
 * * * * * . . .
 . . . . * # . .
 . . . . * # . .
-. . . . * G . .</pre>
+. . . . * G . .
+        
+=== Test 3: No Possible Path (blocked grid) ===
+Path length: 0 steps
+S . . . .
+# # # # #
+. . . . .
+. . . . .
+. . . . G</pre>
 
        
         <h2 id="project-management">Project Management</h2>
-        <p>Development was carried out iteratively across lab sessions, with each session building on the previous. Claude Sonnet was used to help explain certain aspects of the A* algorithm, particularly understanding how <code>f(n) = g(n) + h(n)</code> drives node selection. Visual Studio 2022 was used throughout for building and debugging. Progress was demonstrated during lab checkpoints, with each session introducing improvements such as migrating from raw pointers to smart pointers, fixing the <code>closedSet</code> bug where nodes were being revisited, and separating test logic from the main entry point.</p>
+        <p> Development was carried out consistently across lab sessions, with each session building on the previous. Claude Sonnet was used to help explain certain aspects of the A* algorithm, particularly understanding how <code>f(n) = g(n) + h(n)</code> drives node selection. Visual Studio 2022 was used throughout for building and debugging. Progress was demonstrated during lab checkpoints, with each session introducing improvements such as migrating from raw pointers to smart pointers, fixing the <code>closedSet</code> bug where nodes were being revisited, and separating test logic from the main entry point. </p>
         <img src="https://raw.githubusercontent.com/AlexP8on7/A-Star-Search-Algorithm/master/A*%20Algorithm%20Report/Screenshot%202026-03-16%20215031.png" alt="UML Class Diagram - Before and After Refactor" style="width:100%; margin: 20px 0; border-radius: 8px;">
         <p>The UML diagram above shows how the architecture shifted from a monolithic design to a modular one. The old structure had all logic crammed into <code>main.cpp</code>, while the refactored version separates responsibilities across dedicated files.</p>
-        <p>An early version of <code>main.cpp</code> contained all the pathfinding logic directly, including grid setup, obstacle placement, and output. This was replaced as it violated the principle of modular design — <code>main.cpp</code> should act as an entry point, not contain implementation details. The code below shows this earlier approach before it was refactored:</p>
+        <p>An early version of <code>main.cpp</code> contained some of the pathfinding logic directly, including grid setup, obstacle placement, and output. This was replaced as it violated the principle of modular design. <code>main.cpp</code> should act as an entry point, not contain implementation details. Refactoring the code into separate components improved maintainability, readability, and testability, making it easier to validate individual parts of the system. This emphasis on structured, testable code became even more significant when considering real-world software failures such as CrowdStrike Global IT outage, where a faulty update caused widespread system crashes across critical infrastructure globally<sup>[3]</sup>. It highlights how insufficient validation or tightly coupled systems can lead to large-scale issues. As a result, this project placed greater importance on incremental development, modular design, and thorough testing before integrating changes. The code below shows this earlier approach before it was refactored:</p>
         <pre>
 #include &lt;iostream&gt;
 #include &lt;stdexcept&gt;
@@ -196,12 +205,12 @@ int main() {
 }</pre>
 
         <h2 id="reflection">Reflection</h2>
-        <p>The biggest challenge was developing a solid understanding of how the A* algorithm functions in practice — particularly how the evaluation function <code>f(n) = g(n) + h(n)</code> directs the search toward the most promising paths. 
-            Once it became clear that <code>g(n)</code> represents the exact cost incurred from the start to the current node, while <code>h(n)</code> provides an admissible estimate of the remaining cost to the goal, the role of the priority queue snapped into focus: it always expands the node with the lowest total estimated cost first.
+        <p>The biggest challenge was developing a solid understanding of how the A* algorithm functions, particularly how the evaluation function <code>f(n) = g(n) + h(n)</code> directs the search toward the most promising paths. 
+            Once it became clear that <code>g(n)</code> represents the exact cost came from the start to the current node, while <code>h(n)</code> provides an actual estimate of the remaining cost to the goal, the role of the priority queue began to make sense. It always expands the node with the lowest total estimated cost first.
 </p>
 
 <p>
-    Leveraging modern C++14 features — including smart pointers, lambda expressions, and standard STL containers — resulted in safer memory management, more expressive and maintainable code, and better alignment with established guidelines for writing reliable software in critical and safety-related systems<sup>[1]</sup>.
+    In this project, modern C++ features such as smart pointers, lambda expressions, and STL containers were adopted to improve code quality. This approach contributed to safer memory management and more maintainable code, particularly when compared to other techniques. Reflecting on this decision, it became clear that these features not only reduced the likelihood of common errors, such as memory leaks, but also aligned the implementation more closely with established guidelines for developing reliable software in critical and safety-related systems<sup>[1]</sup>. However, their effective use required a deeper understanding of modern C++ implementations, highlighting the importance of balancing suitable language features with code readability and team familiarity.
 </p>
         <h2 id="references">References</h2>
         <li id="ref1">
@@ -211,6 +220,19 @@ int main() {
                     [Online]. Available: https://www.autosar.org/fileadmin/standards/R17-10_R1.2.0/AP/AUTOSAR_RS_CPP14Guidelines.pdf
                 </a>
             </li>    
+        <li id="ref2">
+    BBC News, "Global IT outage caused by CrowdStrike update explained," Jul. 2024. 
+    <a href="https://www.bbc.com/news/technology-66250766" target="_blank">
+        [Online]. Available: https://www.bbc.com/news/technology-66250766
+    </a>
+</li>
+
+<li id="ref3">
+    The Guardian, "CrowdStrike software update triggers worldwide IT outages," Jul. 2024. 
+    <a href="https://www.theguardian.com/technology/2024/jul/19/crowdstrike-outage-windows" target="_blank">
+        [Online]. Available: https://www.theguardian.com/technology/2024/jul/19/crowdstrike-outage-windows
+    </a>
+</li>
     </div>
 
 </body>
