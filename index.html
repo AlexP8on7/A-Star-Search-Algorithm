@@ -119,7 +119,7 @@
         <h2 id="implementation">Implementation</h2>
         <p>The implementation was structured across multiple files to ensure modularity and reusability. The core algorithm lives in <code>aStarPathfinding.cpp</code>, with declarations in <code>aStarPathfinding.h</code>, keeping the interface clean and separate from the logic. <code>main.cpp</code> remains minimal, simply calling <code>RunAllTests()</code> from <code>PathfindingTests.cpp</code>, which validates the algorithm across three scenarios: a simple path with no obstacles, a path that must navigate around obstacles, and a case where no path exists.</p>
         <p> Modern C++ features were applied throughout the implementation. 
-    <strong>Smart pointers</strong> (<code>std::shared_ptr</code>) replaced raw pointers to eliminate memory leaks and ensure safe resource ownership<sup>[1]</sup>. 
+    Smart pointers (<code>std::shared_ptr</code>) replaced raw pointers to eliminate memory leaks and ensure safe resource ownership<sup>[1]</sup>. 
     The STL containers <code>std::vector</code>, <code>std::priority_queue</code>, and <code>std::unordered_set</code> were used for the grid representation, open set, and closed set, respectively. 
     Lambda functions enabled efficient O(1) hashing of grid positions for closed-set lookups, while range-based <code>for</code> loops with <code>auto</code> improved code readability and type safety<sup>[1]</sup>.
 </p>
